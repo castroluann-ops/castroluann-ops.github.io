@@ -1,6 +1,6 @@
 // Preceptor — service worker: funciona offline e guarda imagens já vistas.
-const SHELL = 'preceptor-shell-v2';
-const RUNTIME = 'preceptor-runtime-v2';
+const SHELL = 'preceptor-shell-v3';
+const RUNTIME = 'preceptor-runtime-v3';
 const SHELL_FILES = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', e => {
