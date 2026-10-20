@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Preceptor</title>
+<meta name="theme-color" content="#1C2830">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ECEEE8; --paper2:#F7F8F4; --ink:#1C2830; --ink2:#4E5C63; --line:#CBD1C8;
+  --ok:#2E7A4C; --okbg:#DCEBDF; --bad:#A33A2E; --badbg:#F2DDD9;
+  --serif:"Newsreader", Georgia, "Times New Roman", serif;
+  --sans:"Instrument Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  color-scheme:light;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root{
+    --paper:#172026; --paper2:#1F2A31; --ink:#E3E6DE; --ink2:#9AA8AD; --line:#33424A;
+    --ok:#74C795; --okbg:#1E3A2B; --bad:#EE8B7A; --badbg:#432622;
+    color-scheme:dark;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+.t{--pc:var(--c)}
+@media (prefers-color-scheme:dark){.t{--pc:var(--cd)}}
+a{color:inherit}
+button{font:inherit;color:inherit}
+img{max-width:100%}
+:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+#app{max-width:640px;margin:0 auto;padding:0 20px calc(96px + env(safe-area-inset-bottom,0px))}
+#app.noNav{padding-bottom:calc(40px + env(safe-area-inset-bottom,0px))}
+
+/* Navegação inferior */
+nav.bottom{position:fixed;left:0;right:0;bottom:0;background:var(--paper2);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom,0px);z-index:20}
+nav.bottom .in{max-width:640px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr)}
+nav.bottom a{text-decoration:none;text-align:center;padding:12px 4px 13px;font-size:13.5px;color:var(--ink2);font-weight:500}
+nav.bottom a.on{color:var(--ink)}
+nav.bottom a.on::before{content:"";display:block;width:22px;height:3px;background:var(--ink);margin:-12px auto 9px;border-radius:0 0 2px 2px}
+nav.bottom a:not(.on)::before{content:"";display:block;height:3px;margin:-12px auto 9px}
+
+/* Tipografia */
+.wordmark{font-family:var(--serif);font-size:21px;font-weight:600;letter-spacing:.01em}
+h1,h2,h3{font-family:var(--serif);font-weight:500;margin:0}
+h1{font-size:34px;line-height:1.1;letter-spacing:-.01em}
+h2{font-size:22px;line-height:1.2;margin:36px 0 12px}
+h3{font-size:18px}
+.muted{color:var(--ink2)}
+.small{font-size:14px}
+
+header.top{display:flex;justify-content:space-between;align-items:baseline;padding:18px 0 4px}
+header.top .date{font-size:14px;color:var(--ink2)}
+
+/* Botões */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:1px solid var(--ink);background:transparent;border-radius:8px;padding:11px 16px;font-weight:500;font-size:15px;cursor:pointer;text-decoration:none;min-height:44px}
+.btn.primary{background:var(--ink);color:var(--paper)}
+.btn.big{width:100%;padding:16px;font-size:17px;border-radius:10px}
+.btn.quiet{border-color:var(--line)}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
+.btn:disabled{opacity:.4;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.linkbtn{background:none;border:0;padding:8px 0;text-decoration:underline;text-underline-offset:3px;color:var(--ink2);cursor:pointer;font-size:15px}
+
+/* Início */
+.hero{padding:34px 0 8px}
+.hero .lede{font-family:var(--serif);font-size:20px;line-height:1.4;margin:12px 0 22px;color:var(--ink)}
+.week{margin-top:26px;display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:15px}
+.marks{display:flex;gap:6px}
+.marks i{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--ink2);display:block}
+.marks i.on{background:var(--ink);border-color:var(--ink)}
+
+/* Trilhas (pigmentos) */
+.trail{display:grid;grid-template-columns:44px 1fr auto;gap:14px;align-items:center;text-decoration:none;padding:12px 0;border-bottom:1px solid var(--line)}
+.trail:last-child{border-bottom:0}
+.swatch{width:44px;height:52px;border-radius:4px;background:color-mix(in srgb,var(--pc) 18%,transparent);position:relative;overflow:hidden;border:1.5px solid var(--pc)}
+.swatch .fill{position:absolute;left:0;right:0;bottom:0;background:var(--pc);transition:height .6s ease}
+.trail .name{font-family:var(--serif);font-size:19px;display:block}
+.trail .src{font-size:14px;color:var(--ink2);display:block;margin-top:1px}
+.trail .lvl{font-size:13px;color:var(--ink2);text-align:right;white-space:nowrap}
+.trail .lvl b{display:block;font-family:var(--serif);font-size:22px;font-weight:500;color:var(--ink)}
+.status-wait{color:var(--pc)!important;font-weight:500}
+
+/* Página de tópico */
+.topichead{margin:0 -20px;padding:26px 20px 22px;background:var(--c);color:#fff}
+.topichead a.back{color:#fff;opacity:.85;text-decoration:none;font-size:15px}
+.topichead h1{margin-top:14px;font-size:38px}
+.topichead .lv{margin-top:6px;font-size:15px;opacity:.92}
+.bar{height:6px;background:color-mix(in srgb,currentColor 25%,transparent);border-radius:3px;overflow:hidden;margin-top:10px}
+.bar span{display:block;height:100%;background:currentColor}
+.panel{background:var(--paper2);border:1px solid var(--line);border-radius:10px;padding:18px}
+.panel + .panel{margin-top:12px}
+.srcTitle{font-family:var(--serif);font-size:21px;line-height:1.25}
+.kv{font-size:15px;color:var(--ink2);margin-top:6px}
+pre.req{white-space:pre-wrap;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:12px;font-size:13.5px;line-height:1.5;margin:12px 0;font-family:ui-monospace,Menlo,Consolas,monospace;overflow-x:auto}
+.list{list-style:none;padding:0;margin:0}
+.list li{padding:11px 0;border-bottom:1px solid var(--line)}
+.list li:last-child{border-bottom:0}
+.list a{text-decoration:none;display:block}
+.list .sub{font-size:14px;color:var(--ink2)}
+.list .pending{opacity:.5}
+details.box{margin-top:12px;border:1px solid var(--line);border-radius:10px;background:var(--paper2)}
+details.box>summary{cursor:pointer;padding:14px 18px;font-weight:500;list-style:none}
+details.box>summary::-webkit-details-marker{display:none}
+details.box>summary::after{content:"+";float:right;color:var(--ink2)}
+details.box[open]>summary::after{content:"–"}
+details.box .in{padding:0 18px 18px}
+
+/* Formulários */
+label.f{display:block;font-size:14px;color:var(--ink2);margin:12px 0 5px}
+input.f,select.f,textarea.f{width:100%;font:inherit;font-size:16px;padding:11px 12px;border:1px solid var(--line);border-radius:8px;background:var(--paper);color:var(--ink)}
+textarea.f{min-height:180px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:10px 15px;cursor:pointer;min-width:44px}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.setting{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+
+/* Sessão */
+.sesbar{position:sticky;top:env(safe-area-inset-top,0px);background:var(--paper);z-index:10;margin:0 -20px;padding:12px 20px 10px;border-bottom:1px solid var(--line)}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--paper)}
+.sesbar .rowx{display:flex;justify-content:space-between;align-items:center}
+.segs{display:flex;gap:4px;margin-top:10px}
+.segs span{flex:1;height:5px;border-radius:3px;background:color-mix(in srgb,var(--pc) 25%,transparent)}
+.segs span.done{background:var(--pc)}
+.segs span.now{background:linear-gradient(90deg,var(--pc) 50%,color-mix(in srgb,var(--pc) 25%,transparent) 50%)}
+
+/* Leitura */
+.lesson{padding-top:22px}
+.chip{display:inline-flex;align-items:center;gap:8px;font-size:14px;font-weight:500;color:var(--pc)}
+.chip::before{content:"";width:12px;height:12px;border-radius:2px;background:var(--pc)}
+.lesson h1{margin:10px 0 8px;font-size:31px;line-height:1.15}
+.lesson .ref{font-size:14px;color:var(--ink2);margin:0}
+.prose{font-family:var(--serif);font-size:19.5px;line-height:1.68;margin-top:22px}
+.prose p{margin:0 0 1.05em;hyphens:auto}
+.prose h3{font-size:22px;margin:1.5em 0 .5em;font-weight:600}
+.prose ul{padding-left:1.2em}
+.gallery{display:flex;gap:12px;overflow-x:auto;margin:22px -20px 0;padding:0 20px 8px;scroll-snap-type:x mandatory;scroll-padding-inline:20px}
+.fig{flex:0 0 min(80%,400px);scroll-snap-align:start;background:var(--paper2);border:1px solid var(--line);border-radius:10px;overflow:hidden;display:flex;flex-direction:column}
+.fig .im{height:250px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.fig .im img{max-height:250px;max-width:100%;object-fit:contain;display:block}
+.fig .im .noimg{font-size:14px;color:var(--ink2);padding:20px;text-align:center}
+.fig .im.empty{height:auto;display:block}
+.fig .im.empty .noimg{padding:12px 14px;text-align:left;font-family:var(--sans)}
+.fig .cap{padding:12px 14px 14px;font-size:14px;line-height:1.4;flex:1;display:flex;flex-direction:column}
+.fig .cap b{font-family:var(--serif);font-size:16.5px;font-weight:500;display:block}
+.fig .acts{display:flex;flex-wrap:wrap;gap:4px 14px;margin-top:auto;padding-top:8px}
+.fig .acts a{font-size:14px;text-underline-offset:3px;color:var(--ink2);padding:4px 0}
+.keys{margin-top:28px;border-left:3px solid var(--pc);padding:2px 0 2px 16px}
+.keys h3{margin-bottom:8px}
+.keys ul{margin:0;padding-left:1.1em}
+.keys li{margin:6px 0;font-family:var(--serif);font-size:17.5px;line-height:1.5}
+.further{margin-top:22px;padding:16px;border-radius:10px;background:color-mix(in srgb,var(--pc) 12%,transparent);font-family:var(--serif);font-size:17.5px;line-height:1.5}
+.further b{font-family:var(--sans);font-size:14px;display:block;margin-bottom:4px;color:var(--pc);font-weight:600}
+.actionbar{margin-top:30px}
+
+/* Perguntas */
+.q{padding-top:26px}
+.q .num{font-size:14px;color:var(--ink2)}
+.q h2{margin:8px 0 20px;font-size:24px;line-height:1.3}
+.opt{display:block;width:100%;text-align:left;background:var(--paper2);border:1.5px solid var(--line);border-radius:10px;padding:14px 16px;margin-bottom:10px;font-family:var(--serif);font-size:18px;line-height:1.4;cursor:pointer}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.bad{border-color:var(--bad);background:var(--badbg)}
+.opt.dim{opacity:.55}
+.verdict{margin:6px 0 4px;font-weight:600}
+.verdict.ok{color:var(--ok)} .verdict.bad{color:var(--bad)}
+.expl{font-family:var(--serif);font-size:18px;line-height:1.5;margin:0 0 20px}
+
+/* Resumo e progresso */
+.sum{padding-top:48px}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:24px}
+.facts div{background:var(--paper2);padding:14px 16px}
+.facts b{display:block;font-family:var(--serif);font-size:28px;font-weight:500}
+.facts span{font-size:14px;color:var(--ink2)}
+.heat{display:grid;grid-auto-flow:column;grid-template-rows:repeat(7,1fr);gap:3px;overflow-x:auto;padding-bottom:4px}
+.heat i{width:14px;height:14px;border-radius:2px;background:color-mix(in srgb,var(--ink) 8%,transparent);display:block}
+.heat i.l1{background:color-mix(in srgb,var(--ink) 30%,transparent)}
+.heat i.l2{background:color-mix(in srgb,var(--ink) 55%,transparent)}
+.heat i.l3{background:var(--ink)}
+.heat i.fut{background:transparent}
+.tlv{display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:10px 0;border-bottom:1px solid var(--line);color:var(--pc)}
+.tlv .nm{color:var(--ink);font-family:var(--serif);font-size:18px}
+.tlv .xp{color:var(--ink2);font-size:14px}
+.tlv .bar{grid-column:1/-1;margin-top:4px}
+.ach{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}
+.ach .seal{flex:0 0 34px;height:34px;border-radius:50%;border:1.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:16px}
+.ach.lock{opacity:.4}
+.ach.lock .seal{border-style:dashed}
+.ach b{font-weight:500;display:block}
+.ach span{font-size:14px;color:var(--ink2)}
+
+.empty{padding:28px 0;font-family:var(--serif);font-size:18px;line-height:1.5}
+
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(20px);background:var(--ink);color:var(--paper);padding:11px 16px;border-radius:8px;font-size:15px;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;z-index:50;max-width:90vw;text-align:center}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<nav class="bottom" id="nav"><div class="in">
+  <a href="#/" data-r="home">Início</a>
+  <a href="#/trilhas" data-r="trilhas">Trilhas</a>
+  <a href="#/progresso" data-r="progresso">Progresso</a>
+  <a href="#/ajustes" data-r="ajustes">Ajustes</a>
+</div></nav>
+<div id="toast" role="status" aria-live="polite"></div>
+<input type="file" id="filepick" accept="application/json,.json,text/plain" hidden>
+
+<script>
+'use strict';
+/* =========================================================
+   Preceptor — app pessoal de estudos
+   Dados ficam no aparelho (IndexedDB). Faça backups em Ajustes.
+   ========================================================= */
+
+const TOPICS = [
+  {id:'literatura', nome:'Literatura',        c:'#7B5B3A', cd:'#C99E6E'},
+  {id:'arte',       nome:'Arte',              c:'#2C4BA0', cd:'#8AA2E6'},
+  {id:'musica',     nome:'Música',            c:'#2F7D6D', cd:'#62C2AB'},
+  {id:'politica',   nome:'Política',          c:'#B23A2A', cd:'#EB7F6C'},
+  {id:'historia',   nome:'História',          c:'#9A7219', cd:'#DDB458'},
+  {id:'economia',   nome:'Economia',          c:'#55703A', cd:'#9BC072'},
+  {id:'gerais',     nome:'Interesses gerais', c:'#6E3C6B', cd:'#C38DBE'},
+];
+const TOPIC = Object.fromEntries(TOPICS.map(t => [t.id, t]));
+const tstyle = id => `style="--c:${TOPIC[id].c};--cd:${TOPIC[id].cd}"`;
+
+/* ---------- Armazenamento ---------- */
+const DB_NAME = 'preceptor', STORE = 'kv';
+let dbPromise = null;
+function idb() {
+  if (!dbPromise) dbPromise = new Promise((res, rej) => {
+    const r = indexedDB.open(DB_NAME, 1);
+    r.onupgradeneeded = () => r.result.createObjectStore(STORE);
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => rej(r.error);
+  });
+  return dbPromise;
+}
+async function dbGet(k) {
+  try {
+    const db = await idb();
+    return await new Promise((res, rej) => {
+      const q = db.transaction(STORE, 'readonly').objectStore(STORE).get(k);
+      q.onsuccess = () => res(q.result); q.onerror = () => rej(q.error);
+    });
+  } catch (e) { try { return localStorage.getItem('preceptor:' + k); } catch (_) { return null; } }
+}
+async function dbSet(k, v) {
+  try {
+    const db = await idb();
+    await new Promise((res, rej) => {
+      const tx = db.transaction(STORE, 'readwrite');
+      tx.objectStore(STORE).put(v, k);
+      tx.oncomplete = res; tx.onerror = () => rej(tx.error);
+    });
+  } catch (e) { try { localStorage.setItem('preceptor:' + k, v); } catch (_) { toast('Não foi possível salvar. Faça um backup em Ajustes.'); } }
+}
+
+function freshState() {
+  return {
+    version: 1,
+    settings: { weeklyGoal: 5, topicsPerSession: 3, batchSize: 2 },
+    topics: Object.fromEntries(TOPICS.map(t => [t.id, { xp: 0, lastStudied: 0 }])),
+    sources: [],
+    lessons: {},
+    qstats: {},
+    sessions: [],
+    current: null,
+    achievements: {},
+  };
+}
+let S = freshState();
+let saveTimer = null;
+function save(now) {
+  clearTimeout(saveTimer);
+  const go = () => dbSet('state', JSON.stringify(S));
+  if (now) return go();
+  saveTimer = setTimeout(go, 250);
+}
+function normalizeState(o) {
+  const base = freshState();
+  const s = Object.assign(base, o || {});
+  s.settings = Object.assign(freshState().settings, s.settings || {});
+  TOPICS.forEach(t => { if (!s.topics[t.id]) s.topics[t.id] = { xp: 0, lastStudied: 0 }; });
+  return s;
+}
+
+/* ---------- Utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmtDate = ts => new Date(ts).toLocaleDateString('pt-BR', {day:'numeric', month:'short', year:'numeric'});
+const plural = (n, a, b) => `${n} ${n === 1 ? a : b}`;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.classList.add('on');
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.remove('on'), 2600);
+}
+function slug(s) {
+  return String(s || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 48);
+}
+function normTopic(s) {
+  const k = slug(s).replace(/-/g, ' ');
+  if (TOPIC[k]) return k;
+  if (k.includes('gera') || k.includes('interess')) return 'gerais';
+  return TOPICS.map(t => t.id).find(id => k.startsWith(id.slice(0, 5))) || null;
+}
+function dayKey(ts) { const d = new Date(ts); return `${d.getFullYear()}-${d.getMonth()+1}-${d.getDate()}`; }
+function weekStart(ts) {
+  const d = new Date(ts); d.setHours(0,0,0,0);
+  d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); // segunda-feira
+  return d.getTime();
+}
+async function copyText(txt) {
+  try { await navigator.clipboard.writeText(txt); toast('Pedido copiado. Cole no Projeto.'); }
+  catch (e) {
+    const ta = document.createElement('textarea'); ta.value = txt; document.body.appendChild(ta);
+    ta.select(); try { document.execCommand('copy'); toast('Pedido copiado. Cole no Projeto.'); } catch (_) { toast('Selecione o texto e copie manualmente.'); }
+    ta.remove();
+  }
+}
+
+/* Markdown simples: ## subtítulos, **negrito**, *itálico*, listas com "- " */
+function md(src) {
+  const inline = s => esc(s)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*])\*(?!\s)(.+?)\*/g, '$1<em>$2</em>');
+  return String(src || '').replace(/\r/g, '').split(/\n{2,}/).map(block => {
+    const b = block.trim(); if (!b) return '';
+    const h = b.match(/^(#{1,4})\s+(.*)$/);
+    if (h && !b.includes('\n')) return `<h3>${inline(h[2])}</h3>`;
+    const lines = b.split('\n');
+    if (lines.every(l => /^\s*[-•]\s+/.test(l))) return '<ul>' + lines.map(l => `<li>${inline(l.replace(/^\s*[-•]\s+/, ''))}</li>`).join('') + '</ul>';
+    if (h) { // subtítulo seguido de texto no mesmo bloco
+      return `<h3>${inline(h[2])}</h3>` + md(lines.slice(1).join('\n'));
+    }
+    return `<p>${lines.map(inline).join('<br>')}</p>`;
+  }).join('');
+}
+
+/* ---------- Níveis e XP ---------- */
+function levelOf(xp) {
+  let lvl = 1, need = 100, rest = xp;
+  while (rest >= need) { rest -= need; lvl++; need += 50; }
+  return { lvl, into: rest, need };
+}
+const totalXp = () => TOPICS.reduce((a, t) => a + S.topics[t.id].xp, 0);
+function addXp(tid, n) { S.topics[tid].xp += n; }
+
+/* ---------- Fontes e lições ---------- */
+const sourcesOf = tid => S.sources.filter(s => s.topic === tid);
+const lessonsOf = src => src.lessonIds.map(id => S.lessons[id]).filter(Boolean).sort((a, b) => a.ordem - b.ordem);
+const activeSource = tid => sourcesOf(tid).find(s => s.status !== 'concluida') || null;
+function nextLesson(tid) {
+  const a = activeSource(tid); if (!a) return null;
+  return lessonsOf(a).find(l => !l.doneAt) || null;
+}
+const pendingCount = tid => { const a = activeSource(tid); return a ? lessonsOf(a).filter(l => !l.doneAt).length : 0; };
+
+function refreshSources(tid) {
+  let hasActive = false;
+  for (const s of sourcesOf(tid)) {
+    const ls = lessonsOf(s);
+    if (s.status === 'concluida' || (s.ended && ls.length && ls.every(l => l.doneAt))) {
+      if (s.status !== 'concluida') { s.status = 'concluida'; s.concludedAt = Date.now(); }
+      continue;
+    }
+    if (!hasActive) { s.status = 'ativa'; hasActive = true; if (!s.startedAt) s.startedAt = Date.now(); }
+    else s.status = 'fila';
+  }
+}
+
+function makeSource({ id, topic, titulo, autor, tipo }) {
+  return { id, topic, titulo: titulo || id, autor: autor || '', tipo: tipo || 'livro',
+    status: 'fila', createdAt: Date.now(), startedAt: 0, concludedAt: 0,
+    continuarDe: '', ended: false, lessonIds: [] };
+}
+
+function batchRequest(src) {
+  const ls = lessonsOf(src);
+  const last = ls[ls.length - 1];
+  return [
+    'PEDIDO DE LOTE',
+    `Fonte: ${src.id}`,
+    `Título: ${src.titulo}`,
+    `Autor: ${src.autor || '—'}`,
+    `Tópico: ${src.topic}`,
+    `Tipo: ${src.tipo}`,
+    `Continuar de: ${src.continuarDe || 'início'}`,
+    `Última lição feita: ${last ? `${last.ordem} — ${last.titulo}` : 'nenhuma'}`,
+    `Quantidade: ${S.settings.batchSize}`,
+  ].join('\n');
+}
+
+/* Importação de lote vindo do Projeto */
+function importBatch(text) {
+  let raw = String(text || '').trim().replace(/^```(?:json)?\s*/i, '').replace(/```\s*$/, '').trim();
+  const a = raw.indexOf('{'), b = raw.lastIndexOf('}');
+  if (a > 0 || (b > -1 && b < raw.length - 1)) raw = raw.slice(a, b + 1);
+  let data;
+  try { data = JSON.parse(raw); }
+  catch (e) { throw new Error('O texto não é um JSON válido. Confira se copiou a resposta inteira do Projeto, do primeiro { ao último }.'); }
+  if (!data || !/lote/.test(data.formato || '') || !data.fonte || !Array.isArray(data.licoes))
+    throw new Error('Esse JSON não tem o formato de um lote do Preceptor (faltam "formato", "fonte" ou "licoes").');
+  const f = data.fonte;
+  const topic = normTopic(f.topico);
+  if (!topic) throw new Error(`Tópico desconhecido: "${f.topico}". Use literatura, arte, musica, politica, historia, economia ou gerais.`);
+  const sid = f.id ? slug(f.id) || f.id : slug(f.titulo);
+  if (!sid) throw new Error('A fonte do lote não tem id nem título.');
+  let src = S.sources.find(s => s.id === sid);
+  if (!src) { src = makeSource({ id: sid, topic, titulo: f.titulo, autor: f.autor, tipo: f.tipo }); S.sources.push(src); }
+  else { if (!src.titulo) src.titulo = f.titulo; if (!src.autor) src.autor = f.autor; }
+  if (src.topic !== topic) throw new Error(`A fonte "${src.titulo}" já existe no tópico ${TOPIC[src.topic].nome}.`);
+  let added = 0, dup = 0;
+  data.licoes.forEach((l, i) => {
+    const id = String(l.id || `${sid}-${String(l.ordem || i + 1).padStart(3, '0')}`);
+    if (S.lessons[id]) { dup++; return; }
+    S.lessons[id] = {
+      id, sourceId: sid, topic,
+      ordem: Number(l.ordem) || (lessonsOf(src).length + 1),
+      titulo: l.titulo || 'Lição sem título',
+      referencia: l.referencia || '',
+      tempo_min: Number(l.tempo_min) || 7,
+      conteudo: l.conteudo || '',
+      pontos_chave: Array.isArray(l.pontos_chave) ? l.pontos_chave : [],
+      perguntas: Array.isArray(l.perguntas) ? l.perguntas.filter(q => q && Array.isArray(q.opcoes) && q.opcoes.length) : [],
+      para_ir_alem: l.para_ir_alem || '',
+      imagens: Array.isArray(l.imagens) ? l.imagens : [],
+      importedAt: Date.now(), doneAt: 0, score: null,
+    };
+    src.lessonIds.push(id); added++;
+  });
+  if (data.proximo) {
+    if (data.proximo.continuar_de) src.continuarDe = data.proximo.continuar_de;
+    if (data.proximo.fonte_concluida) src.ended = true;
+  }
+  refreshSources(topic);
+  save();
+  return { src, added, dup };
+}
+
+/* ---------- Imagens ---------- */
+const isDirectImg = u => /^https?:\/\//.test(u || '') && (/\.(jpe?g|png|webp|gif)(\?.*)?$/i.test(u) || /upload\.wikimedia\.org\/.+\.(jpe?g|png|webp|gif)/i.test(u));
+function commonsThumb(u) {
+  const m = (u || '').match(/^https:\/\/upload\.wikimedia\.org\/wikipedia\/commons\/(?!thumb\/)([0-9a-f])\/([0-9a-f]{2})\/([^/?#]+\.(?:jpe?g|png))$/i);
+  return m ? `https://upload.wikimedia.org/wikipedia/commons/thumb/${m[1]}/${m[2]}/${m[3]}/1280px-${m[3]}` : u;
+}
+function figHtml(im) {
+  const direct = isDirectImg(im.url_imagem);
+  const page = im.url_pagina || (!direct && im.url_imagem) || '';
+  const q = im.busca || [im.obra, im.autor].filter(Boolean).join(' ');
+  const commons = `https://commons.wikimedia.org/w/index.php?search=${encodeURIComponent(q)}&title=Special:MediaSearch&type=image`;
+  const gac = `https://artsandculture.google.com/search?q=${encodeURIComponent(q)}`;
+  const meta = [im.autor, im.ano].filter(x => x && x !== '—').join(', ');
+  const where = [im.local && im.local !== '—' ? im.local : '', im.figura_no_livro ? `No livro: ${im.figura_no_livro}` : ''].filter(Boolean).join('. ');
+  return `<figure class="fig" style="margin:0">
+    <div class="im${direct ? '' : ' empty'}">${direct
+      ? `<a href="${esc(im.url_imagem)}" target="_blank" rel="noopener"><img class="limg" loading="lazy" referrerpolicy="no-referrer" alt="${esc(im.obra)}" src="${esc(commonsThumb(im.url_imagem))}" data-orig="${esc(im.url_imagem)}"></a>`
+      : `<div class="noimg">Sem reprodução verificada. Use os links abaixo.</div>`}</div>
+    <figcaption class="cap"><b>${esc(im.obra || 'Obra')}</b>${meta ? `<span>${esc(meta)}</span>` : ''}${where ? `<span class="muted">${esc(where)}</span>` : ''}
+      <span class="acts">
+        ${direct ? `<a href="${esc(im.url_imagem)}" target="_blank" rel="noopener">Tamanho real</a>` : ''}
+        ${page ? `<a href="${esc(page)}" target="_blank" rel="noopener">Página da obra</a>` : ''}
+        ${!direct && q ? `<a href="${commons}" target="_blank" rel="noopener">Buscar no Commons</a><a href="${gac}" target="_blank" rel="noopener">Arts &amp; Culture</a>` : ''}
+      </span></figcaption></figure>`;
+}
+document.addEventListener('error', e => {
+  const img = e.target;
+  if (!(img instanceof HTMLImageElement) || !img.classList.contains('limg')) return;
+  if (img.dataset.orig && img.src !== img.dataset.orig && !img.dataset.tried) { img.dataset.tried = '1'; img.src = img.dataset.orig; return; }
+  const box = img.closest('.im'); if (box) box.innerHTML = '<div class="noimg">A imagem não carregou. Toque em "Tamanho real" ou "Página da obra".</div>';
+}, true);
+
+function lessonHtml(l, extra) {
+  const src = S.sources.find(s => s.id === l.sourceId);
+  return `<article class="lesson t" ${tstyle(l.topic)}>
+    <span class="chip">${esc(TOPIC[l.topic].nome)}${src ? `, ${esc(src.titulo)}` : ''}</span>
+    <h1>${esc(l.titulo)}</h1>
+    <p class="ref">${esc(l.referencia)}${l.referencia ? '. ' : ''}Cerca de ${l.tempo_min} min de leitura.</p>
+    ${l.imagens.length ? `<div class="gallery">${l.imagens.map(figHtml).join('')}</div>` : ''}
+    <div class="prose">${md(l.conteudo)}</div>
+    ${l.pontos_chave.length ? `<div class="keys"><h3>Para guardar</h3><ul>${l.pontos_chave.map(k => `<li>${esc(k)}</li>`).join('')}</ul></div>` : ''}
+    ${l.para_ir_alem ? `<div class="further"><b>Para ir além</b>${esc(l.para_ir_alem)}</div>` : ''}
+    ${extra || ''}
+  </article>`;
+}
+
+/* ---------- Sessão ---------- */
+function planSession() {
+  return TOPICS.filter(t => nextLesson(t.id))
+    .sort((a, b) => (S.topics[a.id].lastStudied || 0) - (S.topics[b.id].lastStudied || 0))
+    .slice(0, S.settings.topicsPerSession)
+    .map(t => t.id);
+}
+function startSession(plan, avulso) {
+  if (!plan.length) { toast('Nenhuma trilha tem lições prontas.'); return; }
+  const first = nextLesson(plan[0]);
+  S.current = { start: Date.now(), activeMs: 0, lastTick: Date.now(), plan, idx: 0, phase: 'read',
+    lessonId: first.id, qi: 0, picked: null, right: 0, xp: 0, done: [], review: [], ri: 0, rRight: 0,
+    avulso: !!avulso, newAch: [] };
+  save(); location.hash = '#/sessao'; render(true);
+}
+function tick() {
+  const c = S.current; if (!c) return;
+  const now = Date.now(); c.activeMs += Math.min(Math.max(0, now - c.lastTick), 10 * 60e3); c.lastTick = now;
+}
+function advance() {
+  const c = S.current;
+  c.idx++; c.qi = 0; c.picked = null; c.right = 0;
+  while (c.idx < c.plan.length) {
+    const l = nextLesson(c.plan[c.idx]);
+    if (l) { c.lessonId = l.id; c.phase = 'read'; return; }
+    c.idx++;
+  }
+  startReview();
+}
+function finishLesson() {
+  const c = S.current, l = S.lessons[c.lessonId];
+  l.doneAt = Date.now(); l.score = c.right;
+  const gain = 20 + 10 * c.right;
+  c.xp += gain; addXp(l.topic, gain);
+  S.topics[l.topic].lastStudied = Date.now();
+  c.done.push(l.id);
+  refreshSources(l.topic);
+  advance();
+}
+function recordQ(lid, qi, ok) {
+  const k = `${lid}#${qi}`, st = S.qstats[k] || { seen: 0, right: 0, wrong: 0, last: 0, lastOk: true };
+  st.seen++; ok ? st.right++ : st.wrong++; st.last = Date.now(); st.lastOk = ok; S.qstats[k] = st;
+}
+function startReview() {
+  const c = S.current, pool = [];
+  Object.values(S.lessons).forEach(l => {
+    if (!l.doneAt || c.done.includes(l.id)) return;
+    l.perguntas.forEach((q, qi) => {
+      const st = S.qstats[`${l.id}#${qi}`];
+      pool.push({ lid: l.id, qi, wrong: st ? !st.lastOk : false, last: st ? st.last : l.doneAt });
+    });
+  });
+  pool.sort((a, b) => (b.wrong - a.wrong) || (a.last - b.last));
+  // evita duas perguntas da mesma lição
+  const pick = [], used = new Set();
+  for (const p of pool) { if (used.has(p.lid)) continue; pick.push({ lid: p.lid, qi: p.qi }); used.add(p.lid); if (pick.length === 3) break; }
+  c.review = pick; c.ri = 0; c.picked = null;
+  c.phase = pick.length ? 'review' : 'summary';
+  if (c.phase === 'summary') finishSession();
+}
+function finishSession() {
+  const c = S.current; tick();
+  c.phase = 'summary';
+  if (c.done.length || c.review.length) {
+    S.sessions.push({ start: c.start, end: Date.now(), activeMs: c.activeMs, lessons: c.done.slice(), xp: c.xp,
+      review: c.review.length, reviewRight: c.rRight, avulso: c.avulso });
+  }
+  c.newAch = checkAchievements();
+}
+
+/* ---------- Semana, sequência e conquistas ---------- */
+const sessionsInWeek = ws => S.sessions.filter(s => s.end >= ws && s.end < ws + 7 * 864e5).length;
+function weekStreak() {
+  let ws = weekStart(Date.now()), n = 0;
+  if (sessionsInWeek(ws) >= S.settings.weeklyGoal) n++;
+  ws -= 7 * 864e5;
+  while (sessionsInWeek(ws) >= S.settings.weeklyGoal) { n++; ws -= 7 * 864e5; }
+  return n;
+}
+const doneLessons = () => Object.values(S.lessons).filter(l => l.doneAt);
+const ACHS = [
+  { id: 'primeira', nome: 'Primeira lição', desc: 'Concluir a primeira lição.', ok: () => doneLessons().length >= 1 },
+  { id: 'dez', nome: 'Dez lições', desc: 'Concluir 10 lições.', ok: () => doneLessons().length >= 10 },
+  { id: 'cinquenta', nome: 'Cinquenta lições', desc: 'Concluir 50 lições.', ok: () => doneLessons().length >= 50 },
+  { id: 'cem', nome: 'Cem lições', desc: 'Concluir 100 lições.', ok: () => doneLessons().length >= 100 },
+  { id: 'paleta', nome: 'Paleta completa', desc: 'Estudar os sete tópicos ao menos uma vez.', ok: () => TOPICS.every(t => S.topics[t.id].lastStudied) },
+  { id: 'livro', nome: 'Livro fechado', desc: 'Concluir uma fonte inteira.', ok: () => S.sources.some(s => s.status === 'concluida') },
+  { id: 'cinco-fontes', nome: 'Estante', desc: 'Concluir cinco fontes.', ok: () => S.sources.filter(s => s.status === 'concluida').length >= 5 },
+  { id: 'semana', nome: 'Semana cheia', desc: 'Bater a meta semanal.', ok: () => weekStreak() >= 1 || S.achievements.semana },
+  { id: 'mes', nome: 'Constância', desc: 'Bater a meta por quatro semanas seguidas.', ok: () => weekStreak() >= 4 },
+  { id: 'revisao', nome: 'Memória viva', desc: 'Acertar 25 perguntas de revisão.', ok: () => S.sessions.reduce((a, s) => a + (s.reviewRight || 0), 0) >= 25 },
+  { id: 'horas', nome: 'Dez horas', desc: 'Somar dez horas de estudo.', ok: () => S.sessions.reduce((a, s) => a + (s.activeMs || 0), 0) >= 10 * 3600e3 },
+];
+function checkAchievements() {
+  const fresh = [];
+  ACHS.forEach(a => { if (!S.achievements[a.id] && a.ok()) { S.achievements[a.id] = Date.now(); fresh.push(a.id); } });
+  return fresh;
+}
+
+/* ---------- Telas ---------- */
+let lastKey = '';
+function route() {
+  const h = location.hash.replace(/^#\/?/, '');
+  const [name, ...rest] = h.split('/');
+  return { name: name || 'home', param: decodeURIComponent(rest.join('/')) };
+}
+function render(forceTop) {
+  const r = route();
+  const app = $('#app');
+  const noNav = r.name === 'sessao' || r.name === 'licao';
+  $('#nav').style.display = noNav ? 'none' : '';
+  app.classList.toggle('noNav', noNav);
+  document.querySelectorAll('#nav a').forEach(a => a.classList.toggle('on',
+    a.dataset.r === r.name || (a.dataset.r === 'trilhas' && r.name === 't') || (a.dataset.r === 'home' && r.name === 'importar')));
+  let key = r.name + '/' + r.param;
+  if (r.name === 'sessao' && S.current) key += `/${S.current.phase}/${S.current.lessonId}/${S.current.qi}/${S.current.ri}`;
+  const views = { home: vHome, trilhas: vTrails, t: vTopic, sessao: vSession, progresso: vStats, ajustes: vSettings, importar: vImport, licao: vLesson };
+  app.innerHTML = (views[r.name] || vHome)(r.param);
+  if (forceTop || key !== lastKey) window.scrollTo(0, 0);
+  lastKey = key;
+}
+
+function trailRow(t) {
+  const st = S.topics[t.id], L = levelOf(st.xp), act = activeSource(t.id), pend = pendingCount(t.id);
+  let line;
+  if (act && pend) line = `<span class="src">${esc(act.titulo)}. ${plural(pend, 'lição pronta', 'lições prontas')}.</span>`;
+  else if (act) line = `<span class="src status-wait">${esc(act.titulo)}. Gerar próximo lote.</span>`;
+  else line = `<span class="src status-wait">Adicionar uma fonte.</span>`;
+  return `<a class="trail t" href="#/t/${t.id}" ${tstyle(t.id)}>
+    <span class="swatch"><span class="fill" style="height:${Math.round(L.into / L.need * 100)}%"></span></span>
+    <span><span class="name">${esc(t.nome)}</span>${line}</span>
+    <span class="lvl"><b>${L.lvl}</b>nível</span></a>`;
+}
+
+function vHome() {
+  const now = new Date(), hr = now.getHours();
+  const greet = hr < 12 ? 'Bom dia.' : hr < 18 ? 'Boa tarde.' : 'Boa noite.';
+  const date = now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+  const goal = S.settings.weeklyGoal, wk = sessionsInWeek(weekStart(Date.now()));
+  let lede, cta;
+  if (S.current && S.current.phase !== 'summary') {
+    const tid = S.current.phase === 'review' ? null : S.current.plan[S.current.idx];
+    lede = tid ? `Você tem uma sessão em andamento, em ${TOPIC[tid].nome}.` : 'Você parou na revisão da última sessão.';
+    cta = `<a class="btn primary big" href="#/sessao">Continuar sessão</a>`;
+  } else {
+    const plan = planSession();
+    if (plan.length) {
+      const mins = plan.reduce((a, id) => a + nextLesson(id).tempo_min + 2, 0) + 2;
+      const names = plan.map(id => TOPIC[id].nome);
+      const list = names.length > 1 ? names.slice(0, -1).join(', ') + ' e ' + names[names.length - 1] : names[0];
+      lede = `Hoje: ${list}. Cerca de ${mins} minutos.`;
+      cta = `<button class="btn primary big" data-act="start">Começar sessão</button>`;
+    } else if (!S.sources.length) {
+      lede = 'Comece importando o primeiro lote de lições gerado no Projeto.';
+      cta = `<a class="btn primary big" href="#/importar">Importar lote</a>`;
+    } else {
+      lede = 'Nenhuma trilha tem lições prontas. Gere um lote no Projeto e importe aqui.';
+      cta = `<a class="btn primary big" href="#/importar">Importar lote</a>`;
+    }
+  }
+  return `<header class="top"><span class="wordmark">Preceptor</span><span class="date">${esc(date)}</span></header>
+  <section class="hero"><h1>${greet}</h1><p class="lede">${esc(lede)}</p>${cta}</section>
+  <div class="week"><span>Esta semana: ${wk} de ${goal} ${goal === 1 ? 'sessão' : 'sessões'}</span>
+    <span class="marks" aria-hidden="true">${Array.from({ length: goal }, (_, i) => `<i class="${i < wk ? 'on' : ''}"></i>`).join('')}</span></div>
+  <h2>Trilhas</h2>
+  <div>${TOPICS.map(trailRow).join('')}</div>`;
+}
+
+function vTrails() {
+  return `<header class="top"><span class="wordmark">Trilhas</span><a class="linkbtn" href="#/importar">Importar lote</a></header>
+  <p class="muted small" style="margin:8px 0 6px">O pigmento de cada trilha se enche à medida que você avança no nível.</p>
+  <div>${TOPICS.map(trailRow).join('')}</div>`;
+}
+
+function vTopic(tid) {
+  const t = TOPIC[tid]; if (!t) return vTrails();
+  const st = S.topics[tid], L = levelOf(st.xp);
+  const srcs = sourcesOf(tid), act = activeSource(tid);
+  const queue = srcs.filter(s => s.status === 'fila'), past = srcs.filter(s => s.status === 'concluida');
+  let actHtml;
+  if (act) {
+    const ls = lessonsOf(act), done = ls.filter(l => l.doneAt).length, pend = ls.length - done;
+    actHtml = `<div class="panel">
+      <div class="srcTitle">${esc(act.titulo)}</div>
+      <div class="kv">${esc(act.autor || '')}${act.autor ? '. ' : ''}${plural(done, 'lição feita', 'lições feitas')} de ${ls.length} ${ls.length === 1 ? 'gerada' : 'geradas'}.</div>
+      ${act.continuarDe ? `<div class="kv">O próximo lote começa em: ${esc(act.continuarDe)}</div>` : ''}
+      ${act.ended && pend ? `<div class="kv">Este é o último lote desta fonte.</div>` : ''}
+      <div class="row" style="margin-top:16px">
+        ${pend ? `<button class="btn primary" data-act="solo" data-t="${tid}">Estudar próxima lição</button>` : ''}
+      </div>
+      ${!act.ended ? `<details class="box" ${pend ? '' : 'open'}><summary>Pedido do próximo lote</summary><div class="in">
+        <p class="small muted" style="margin:0">Copie, cole numa conversa nova do Projeto e importe a resposta aqui.</p>
+        <pre class="req">${esc(batchRequest(act))}</pre>
+        <div class="row"><button class="btn primary" data-act="copyreq" data-s="${esc(act.id)}">Copiar pedido</button><a class="btn quiet" href="#/importar">Importar lote</a></div>
+      </div></details>` : ''}
+    </div>`;
+  } else {
+    actHtml = `<div class="panel"><div class="srcTitle">Nenhuma fonte em andamento</div>
+      <div class="kv">${past.length ? 'Você concluiu as fontes desta trilha. Adicione a próxima abaixo.' : 'Adicione a primeira fonte desta trilha abaixo.'}</div></div>`;
+  }
+  const doneLs = srcs.flatMap(lessonsOf).filter(l => l.doneAt).sort((a, b) => b.doneAt - a.doneAt);
+  return `<div class="t" ${tstyle(tid)}>
+  <div class="topichead"><a class="back" href="#/trilhas">‹ Trilhas</a><h1>${esc(t.nome)}</h1>
+    <div class="lv">Nível ${L.lvl}. Faltam ${L.need - L.into} XP para o próximo.</div>
+    <div class="bar"><span style="width:${Math.round(L.into / L.need * 100)}%"></span></div></div>
+  <h2>Fonte atual</h2>${actHtml}
+  <details class="box" ${act ? '' : 'open'}><summary>${act ? 'Adicionar próxima fonte' : 'Adicionar fonte'}</summary><div class="in">
+    ${act ? '<p class="small muted" style="margin:0">Ela entra na fila e começa quando a fonte atual terminar.</p>' : ''}
+    <label class="f" for="nfTit">Título</label><input class="f" id="nfTit" placeholder="Ex.: O Resto É Ruído">
+    <label class="f" for="nfAut">Autor</label><input class="f" id="nfAut" placeholder="Ex.: Alex Ross">
+    <label class="f" for="nfTipo">Tipo</label>
+    <select class="f" id="nfTipo"><option value="livro">Livro</option><option value="artigo">Artigo</option><option value="curriculo">Currículo (sem arquivo; o Claude monta a progressão)</option></select>
+    <div style="margin-top:16px"><button class="btn primary" data-act="addsrc" data-t="${tid}">Adicionar fonte</button></div>
+  </div></details>
+  ${queue.length ? `<h2>Na fila</h2><ul class="list">${queue.map(s => `<li><b>${esc(s.titulo)}</b><div class="sub">${esc(s.autor || s.tipo)}</div>
+     <details style="margin-top:6px"><summary class="small muted">Pedido do primeiro lote</summary><pre class="req">${esc(batchRequest(s))}</pre>
+     <div class="row"><button class="btn quiet" data-act="copyreq" data-s="${esc(s.id)}">Copiar pedido</button><button class="btn danger" data-act="delsrc" data-s="${esc(s.id)}">Remover fonte</button></div></details></li>`).join('')}</ul>` : ''}
+  ${past.length ? `<h2>Fontes concluídas</h2><ul class="list">${past.map(s => `<li><b>${esc(s.titulo)}</b><div class="sub">${esc(s.autor)}${s.autor ? '. ' : ''}${plural(s.lessonIds.length, 'lição', 'lições')}. ${s.startedAt ? fmtDate(s.startedAt) + ' a ' : ''}${fmtDate(s.concludedAt)}.</div></li>`).join('')}</ul>` : ''}
+  ${doneLs.length ? `<h2>Lições feitas</h2><ul class="list">${doneLs.map(l => `<li><a href="#/licao/${encodeURIComponent(l.id)}"><span>${esc(l.titulo)}</span><div class="sub">${fmtDate(l.doneAt)}. ${l.score ?? 0} de ${l.perguntas.length} acertos.</div></a></li>`).join('')}</ul>` : ''}
+  ${act ? `<details class="box" style="margin-top:28px"><summary>Opções da fonte atual</summary><div class="in">
+    <p class="small muted" style="margin-top:0">Marque como concluída se não pretende continuar esta fonte, ou remova-a com todas as lições, se foi adicionada por engano.</p>
+    <div class="row"><button class="btn quiet" data-act="endsrc" data-s="${esc(act.id)}">Marcar como concluída</button><button class="btn danger" data-act="delsrc" data-s="${esc(act.id)}">Remover fonte</button></div></div></details>` : ''}
+  </div>`;
+}
+
+function questionHtml(l, q, qi, picked, label, nextLabel) {
+  const answered = picked !== null && picked !== undefined;
+  const ok = answered && picked === q.correta;
+  return `<section class="q t" ${tstyle(l.topic)}>
+    <div class="num">${esc(label)}</div>
+    <h2>${esc(q.enunciado)}</h2>
+    ${q.opcoes.map((o, i) => {
+      let cls = '';
+      if (answered) cls = i === q.correta ? 'ok' : i === picked ? 'bad' : 'dim';
+      return `<button class="opt ${cls}" data-act="pick" data-i="${i}" ${answered ? 'disabled' : ''}>${esc(o)}</button>`;
+    }).join('')}
+    ${answered ? `<p class="verdict ${ok ? 'ok' : 'bad'}">${ok ? 'Certo.' : 'Não foi dessa vez.'}</p><p class="expl">${esc(q.explicacao || '')}</p>
+      <button class="btn primary big" data-act="nextq">${esc(nextLabel)}</button>` : ''}
+  </section>`;
+}
+
+function vSession() {
+  const c = S.current;
+  if (!c) return `<div class="empty">Nenhuma sessão em andamento.</div><a class="btn primary" href="#/">Voltar ao início</a>`;
+  const segs = c.plan.map((tid, i) => `<span class="t ${i < c.idx || c.phase !== 'read' && c.phase !== 'quiz' ? 'done' : i === c.idx ? 'now' : ''}" ${tstyle(tid)}></span>`).join('');
+  const bar = `<div class="sesbar"><div class="rowx"><a class="linkbtn" href="#/" style="padding:4px 0">Pausar</a>
+    <span class="small muted">${c.phase === 'review' ? 'Revisão' : c.phase === 'summary' ? 'Fim' : `Tópico ${c.idx + 1} de ${c.plan.length}`}</span></div>
+    <div class="segs">${segs}${c.review.length ? `<span class="t ${c.phase === 'summary' ? 'done' : ''}" style="--c:var(--ink);--cd:var(--ink)"></span>` : ''}</div></div>`;
+
+  if (c.phase === 'read') {
+    const l = S.lessons[c.lessonId];
+    const hasQ = l.perguntas.length > 0;
+    return bar + lessonHtml(l, `<div class="actionbar">
+      <button class="btn primary big" data-act="${hasQ ? 'toquiz' : 'finishnoq'}">${hasQ ? 'Ir para as perguntas' : 'Concluir lição'}</button>
+      <div style="text-align:center;margin-top:8px"><button class="linkbtn" data-act="skip">Pular este tópico hoje</button></div></div>`);
+  }
+  if (c.phase === 'quiz') {
+    const l = S.lessons[c.lessonId], q = l.perguntas[c.qi];
+    const last = c.qi === l.perguntas.length - 1;
+    return bar + questionHtml(l, q, c.qi, c.picked, `${TOPIC[l.topic].nome}. Pergunta ${c.qi + 1} de ${l.perguntas.length}`, last ? 'Concluir lição' : 'Próxima pergunta');
+  }
+  if (c.phase === 'review') {
+    const it = c.review[c.ri], l = S.lessons[it.lid], q = l.perguntas[it.qi];
+    const last = c.ri === c.review.length - 1;
+    return bar + `<p class="small muted" style="margin:22px 0 0">Revisão de "${esc(l.titulo)}"</p>` +
+      questionHtml(l, q, it.qi, c.picked, `Revisão ${c.ri + 1} de ${c.review.length}`, last ? 'Encerrar sessão' : 'Próxima');
+  }
+  // resumo
+  const mins = Math.max(1, Math.round(c.activeMs / 60000));
+  const goal = S.settings.weeklyGoal, wk = sessionsInWeek(weekStart(Date.now()));
+  const achs = c.newAch.map(id => ACHS.find(a => a.id === id)).filter(Boolean);
+  const concluded = c.done.map(id => S.lessons[id]).filter(Boolean);
+  return `<section class="sum"><h1>Sessão concluída.</h1>
+    <p class="lede" style="font-family:var(--serif);font-size:19px;margin:12px 0 0">${concluded.length ? esc(concluded.map(l => l.titulo).join('; ')) + '.' : 'Só revisão hoje.'}</p>
+    <div class="facts">
+      <div><b>${concluded.length}</b><span>${concluded.length === 1 ? 'lição' : 'lições'}</span></div>
+      <div><b>${mins}</b><span>minutos</span></div>
+      <div><b>+${c.xp}</b><span>XP</span></div>
+      <div><b>${c.rRight}/${c.review.length}</b><span>na revisão</span></div>
+    </div>
+    <div class="week"><span>Esta semana: ${wk} de ${goal}</span><span class="marks">${Array.from({ length: goal }, (_, i) => `<i class="${i < wk ? 'on' : ''}"></i>`).join('')}</span></div>
+    ${achs.length ? `<h2>Conquistas novas</h2>${achs.map(a => `<div class="ach"><span class="seal">✓</span><div><b>${esc(a.nome)}</b><span>${esc(a.desc)}</span></div></div>`).join('')}` : ''}
+    <div style="margin-top:30px"><button class="btn primary big" data-act="endsession">Voltar ao início</button></div></section>`;
+}
+
+function vLesson(id) {
+  const l = S.lessons[id];
+  if (!l) return `<div class="empty">Lição não encontrada.</div><a class="btn" href="#/">Voltar</a>`;
+  const qs = l.perguntas.map((q, i) => `<details class="box"><summary>${esc(q.enunciado)}</summary><div class="in">
+    <p class="expl" style="margin:0 0 6px"><b>${esc(q.opcoes[q.correta] ?? '')}</b></p><p class="small muted" style="margin:0">${esc(q.explicacao || '')}</p></div></details>`).join('');
+  return `<div style="padding-top:14px"><button class="linkbtn" data-act="back">‹ Voltar</button></div>` +
+    lessonHtml(l, qs ? `<h2>Perguntas</h2>${qs}` : '');
+}
+
+function vImport() {
+  return `<header class="top"><span class="wordmark">Importar lote</span><a class="linkbtn" href="#/">Fechar</a></header>
+  <p class="muted" style="margin:10px 0 0">Cole aqui a resposta do Projeto (o JSON inteiro) ou escolha o arquivo .json. Lições repetidas são ignoradas, então importar o mesmo lote duas vezes não causa problema.</p>
+  <textarea class="f" id="batchTxt" style="margin-top:16px" placeholder='{ "formato": "preceptor-lote-v1", ... }'></textarea>
+  <div class="row" style="margin-top:12px"><button class="btn primary" data-act="import">Importar lote</button><button class="btn quiet" data-act="pickfile" data-kind="batch">Escolher arquivo</button></div>
+  <div id="impMsg" style="margin-top:16px"></div>`;
+}
+
+function vStats() {
+  const done = doneLessons();
+  const ms = S.sessions.reduce((a, s) => a + (s.activeMs || 0), 0);
+  const qs = Object.values(S.qstats), tot = qs.reduce((a, q) => a + q.seen, 0), right = qs.reduce((a, q) => a + q.right, 0);
+  const concl = S.sources.filter(s => s.status === 'concluida');
+  // mapa de 16 semanas
+  const perDay = {};
+  S.sessions.forEach(s => { const k = dayKey(s.start); perDay[k] = (perDay[k] || 0) + (s.activeMs || 0); });
+  const start = weekStart(Date.now()) - 15 * 7 * 864e5, cells = [];
+  for (let i = 0; i < 16 * 7; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i);
+    const ts = d.getTime(), m = (perDay[dayKey(ts)] || 0) / 60000;
+    const cls = ts > Date.now() ? 'fut' : m >= 25 ? 'l3' : m >= 12 ? 'l2' : m > 0 ? 'l1' : '';
+    cells.push(`<i class="${cls}" title="${d.toLocaleDateString('pt-BR')}: ${Math.round(m)} min"></i>`);
+  }
+  const hrs = ms / 3600e3;
+  return `<header class="top"><span class="wordmark">Progresso</span><span class="date">${totalXp()} XP no total</span></header>
+  <div class="facts">
+    <div><b>${done.length}</b><span>${done.length === 1 ? 'lição feita' : 'lições feitas'}</span></div>
+    <div><b>${hrs < 1 ? Math.round(ms / 60000) + ' min' : hrs.toFixed(1).replace('.', ',') + ' h'}</b><span>de estudo</span></div>
+    <div><b>${tot ? Math.round(right / tot * 100) + '%' : '—'}</b><span>de acertos</span></div>
+    <div><b>${weekStreak()}</b><span>${weekStreak() === 1 ? 'semana na meta' : 'semanas na meta'}</span></div>
+  </div>
+  <h2>Últimas 16 semanas</h2>
+  <div class="heat" aria-label="Minutos estudados por dia">${cells.join('')}</div>
+  <p class="small muted" style="margin-top:6px">Cada coluna é uma semana, de segunda a domingo.</p>
+  <h2>Por tópico</h2>
+  ${TOPICS.map(t => { const L = levelOf(S.topics[t.id].xp); const n = done.filter(l => l.topic === t.id).length;
+    return `<div class="tlv t" ${tstyle(t.id)}><span class="nm">${esc(t.nome)}</span><span class="xp">Nível ${L.lvl}. ${plural(n, 'lição', 'lições')}</span><div class="bar"><span style="width:${Math.round(L.into / L.need * 100)}%"></span></div></div>`; }).join('')}
+  <h2>Estante</h2>
+  ${concl.length ? `<ul class="list">${concl.sort((a, b) => b.concludedAt - a.concludedAt).map(s => `<li class="t" ${tstyle(s.topic)}><span class="chip">${esc(TOPIC[s.topic].nome)}</span><div><b>${esc(s.titulo)}</b></div><div class="sub">${esc(s.autor)}${s.autor ? '. ' : ''}Concluída em ${fmtDate(s.concludedAt)}.</div></li>`).join('')}</ul>`
+    : `<p class="muted">As fontes que você concluir aparecem aqui, com as datas.</p>`}
+  <h2>Conquistas</h2>
+  ${ACHS.map(a => { const d = S.achievements[a.id];
+    return `<div class="ach ${d ? '' : 'lock'}"><span class="seal">${d ? '✓' : ''}</span><div><b>${esc(a.nome)}</b><span>${esc(a.desc)}${d ? ' ' + fmtDate(d) + '.' : ''}</span></div></div>`; }).join('')}`;
+}
+
+function segCtl(key, vals) {
+  return `<span class="seg">${vals.map(v => `<button class="${S.settings[key] === v ? 'on' : ''}" data-act="set" data-k="${key}" data-v="${v}">${v}</button>`).join('')}</span>`;
+}
+function vSettings() {
+  return `<header class="top"><span class="wordmark">Ajustes</span></header>
+  <div class="setting"><span>Meta de sessões por semana</span>${segCtl('weeklyGoal', [3, 4, 5, 6, 7])}</div>
+  <div class="setting"><span>Tópicos por sessão</span>${segCtl('topicsPerSession', [3, 4])}</div>
+  <div class="setting"><span>Lições por lote pedido</span>${segCtl('batchSize', [1, 2, 3, 4])}</div>
+  <h2>Backup</h2>
+  <p class="muted" style="margin-top:0">Suas lições e seu progresso ficam guardados só neste aparelho. Salve um backup de vez em quando, por exemplo no Google Drive.</p>
+  <div class="row"><button class="btn primary" data-act="export">Salvar backup</button><button class="btn quiet" data-act="pickfile" data-kind="backup">Restaurar backup</button></div>
+  <h2>Como funciona</h2>
+  <p class="muted" style="margin-top:0">Cada trilha tem uma fonte atual. Quando as lições prontas acabarem, abra a trilha, copie o pedido do próximo lote, cole numa conversa nova do Projeto “Preceptor – Gerador de Lições” e importe a resposta. Quando uma fonte termina, ela vai para a Estante e a próxima da fila começa.</p>
+  <h2>Apagar dados</h2>
+  <button class="btn danger" data-act="reset">Apagar tudo</button>
+  <p class="small muted" style="margin-top:28px">Preceptor, versão 1.0</p>`;
+}
+
+/* ---------- Ações ---------- */
+let fileKind = 'batch';
+document.addEventListener('click', async e => {
+  const el = e.target.closest('[data-act]'); if (!el) return;
+  const act = el.dataset.act, c = S.current;
+  switch (act) {
+    case 'start': startSession(planSession(), false); break;
+    case 'solo': {
+      if (c && c.phase !== 'summary' && !confirm('Há uma sessão em andamento. Começar outra descarta o restante dela. Continuar?')) return;
+      startSession([el.dataset.t], true); break;
+    }
+    case 'toquiz': tick(); c.phase = 'quiz'; c.qi = 0; c.picked = null; c.right = 0; save(); render(); break;
+    case 'finishnoq': tick(); finishLesson(); save(); render(); break;
+    case 'skip': tick(); advance(); save(); render(); break;
+    case 'pick': {
+      if (c.picked !== null) return;
+      const i = Number(el.dataset.i); c.picked = i;
+      if (c.phase === 'quiz') {
+        const l = S.lessons[c.lessonId], ok = i === l.perguntas[c.qi].correta;
+        if (ok) c.right++; recordQ(l.id, c.qi, ok);
+      } else {
+        const it = c.review[c.ri], l = S.lessons[it.lid], ok = i === l.perguntas[it.qi].correta;
+        if (ok) { c.rRight++; c.xp += 5; addXp(l.topic, 5); } recordQ(l.id, it.qi, ok);
+      }
+      tick(); save(); render(); break;
+    }
+    case 'nextq': {
+      tick(); c.picked = null;
+      if (c.phase === 'quiz') { c.qi++; if (c.qi >= S.lessons[c.lessonId].perguntas.length) finishLesson(); }
+      else { c.ri++; if (c.ri >= c.review.length) finishSession(); }
+      save(); render(); break;
+    }
+    case 'endsession': S.current = null; save(); location.hash = '#/'; break;
+    case 'copyreq': { const s = S.sources.find(x => x.id === el.dataset.s); if (s) copyText(batchRequest(s)); break; }
+    case 'addsrc': {
+      const titulo = $('#nfTit').value.trim(), autor = $('#nfAut').value.trim(), tipo = $('#nfTipo').value, tid = el.dataset.t;
+      if (!titulo) { toast('Dê um título à fonte.'); $('#nfTit').focus(); return; }
+      let id = slug((autor ? autor.split(/\s+/).pop() + '-' : '') + titulo), n = 2;
+      while (S.sources.some(s => s.id === id)) id = slug(titulo) + '-' + n++;
+      S.sources.push(makeSource({ id, topic: tid, titulo, autor, tipo }));
+      refreshSources(tid); save(); render(); toast('Fonte adicionada. Copie o pedido do primeiro lote.'); break;
+    }
+    case 'endsrc': {
+      const s = S.sources.find(x => x.id === el.dataset.s);
+      if (!s || !confirm(`Marcar "${s.titulo}" como concluída? As lições não feitas ficam de fora.`)) return;
+      s.status = 'concluida'; s.concludedAt = Date.now(); refreshSources(s.topic); checkAchievements(); save(); render(); break;
+    }
+    case 'delsrc': {
+      const s = S.sources.find(x => x.id === el.dataset.s);
+      if (!s || !confirm(`Remover "${s.titulo}" e todas as suas lições? Isso não pode ser desfeito.`)) return;
+      s.lessonIds.forEach(id => delete S.lessons[id]);
+      S.sources = S.sources.filter(x => x !== s); refreshSources(s.topic); save(); render(); break;
+    }
+    case 'import': {
+      const box = $('#impMsg');
+      try {
+        const r = importBatch($('#batchTxt').value);
+        box.innerHTML = `<div class="panel t" ${tstyle(r.src.topic)}><span class="chip">${esc(TOPIC[r.src.topic].nome)}</span>
+          <div class="srcTitle" style="margin-top:6px">${esc(r.src.titulo)}</div>
+          <div class="kv">${plural(r.added, 'lição importada', 'lições importadas')}${r.dup ? `, ${plural(r.dup, 'repetida ignorada', 'repetidas ignoradas')}` : ''}.</div>
+          <div class="row" style="margin-top:14px"><a class="btn primary" href="#/">Ir para o início</a><a class="btn quiet" href="#/t/${r.src.topic}">Ver trilha</a></div></div>`;
+        $('#batchTxt').value = '';
+      } catch (err) { box.innerHTML = `<p style="color:var(--bad)">${esc(err.message)}</p>`; }
+      break;
+    }
+    case 'pickfile': fileKind = el.dataset.kind; $('#filepick').value = ''; $('#filepick').click(); break;
+    case 'set': S.settings[el.dataset.k] = Number(el.dataset.v); save(); render(); break;
+    case 'export': exportBackup(); break;
+    case 'reset': {
+      if (prompt('Isso apaga todas as lições e todo o progresso. Para confirmar, digite APAGAR.') !== 'APAGAR') return;
+      S = freshState(); await save(true); location.hash = '#/'; render(); toast('Dados apagados.'); break;
+    }
+    case 'back': history.length > 1 ? history.back() : (location.hash = '#/'); break;
+  }
+});
+
+$('#filepick').addEventListener('change', async e => {
+  const f = e.target.files[0]; if (!f) return;
+  const txt = await f.text();
+  if (fileKind === 'batch') { $('#batchTxt').value = txt; $('[data-act="import"]').click(); return; }
+  try {
+    const o = JSON.parse(txt);
+    if (o.app !== 'preceptor' || !o.state || !o.state.lessons) throw new Error();
+    if (!confirm(`Restaurar o backup de ${fmtDate(o.exportedAt)}? Os dados atuais serão substituídos.`)) return;
+    S = normalizeState(o.state); await save(true); location.hash = '#/'; render(); toast('Backup restaurado.');
+  } catch (_) { toast('Esse arquivo não é um backup do Preceptor.'); }
+});
+
+async function exportBackup() {
+  const d = new Date(), name = `preceptor-backup-${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}.json`;
+  const blob = new Blob([JSON.stringify({ app: 'preceptor', exportedAt: Date.now(), state: S })], { type: 'application/json' });
+  try {
+    const file = new File([blob], name, { type: 'application/json' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'Backup do Preceptor' }); return; }
+  } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name;
+  document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  toast('Backup salvo em Downloads.');
+}
+
+/* ---------- Início ---------- */
+window.addEventListener('hashchange', () => render());
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') { tick(); save(true); } else if (S.current) S.current.lastTick = Date.now(); });
+
+(async function boot() {
+  const raw = await dbGet('state');
+  if (raw) { try { S = normalizeState(JSON.parse(raw)); } catch (e) { console.error(e); } }
+  if (S.current) S.current.lastTick = Date.now();
+  TOPICS.forEach(t => refreshSources(t.id));
+  render(true);
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist(); } catch (_) {}
+  if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('sw.js').catch(() => {});
+})();
+</script>
+</body>
+</html>
