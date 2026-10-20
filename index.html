@@ -6,8 +6,8 @@
 <title>Preceptor</title>
 <meta name="theme-color" content="#1C2830">
 <link rel="manifest" href="manifest.json">
-<link rel="icon" href="icons/icon-192.png">
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&display=swap" rel="stylesheet">
@@ -630,7 +630,7 @@ function trailRow(t) {
 
 function vHome() {
   const now = new Date(), hr = now.getHours();
-  const greet = hr < 12 ? 'Bom dia.' : hr < 18 ? 'Boa tarde.' : 'Boa noite.';
+  const greet = hr < 5 ? 'Boa noite.' : hr < 12 ? 'Bom dia.' : hr < 18 ? 'Boa tarde.' : 'Boa noite.';
   const date = now.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
   const goal = S.settings.weeklyGoal, wk = sessionsInWeek(weekStart(Date.now()));
   let lede, cta;
@@ -848,7 +848,7 @@ function vSettings() {
   <p class="muted" style="margin-top:0">Cada trilha tem uma fonte atual. Quando as lições prontas acabarem, abra a trilha, copie o pedido do próximo lote, cole numa conversa nova do Projeto “Preceptor – Gerador de Lições” e importe a resposta. Quando uma fonte termina, ela vai para a Estante e a próxima da fila começa.</p>
   <h2>Apagar dados</h2>
   <button class="btn danger" data-act="reset">Apagar tudo</button>
-  <p class="small muted" style="margin-top:28px">Preceptor, versão 1.0</p>`;
+  <p class="small muted" style="margin-top:28px">Preceptor, versão 1.0.1</p>`;
 }
 
 /* ---------- Ações ---------- */
